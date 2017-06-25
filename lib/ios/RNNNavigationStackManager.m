@@ -47,6 +47,20 @@
 	[self removePopedViewControllers:poppedVCs];
 }
 
+-(void)setupHeader:(NSDictionary *)config forContainer:containerId {
+	UIViewController* vc = [_store findContainerForId:containerId];
+	if (vc) {
+		NSString *title = config[@"title"];
+		NSString *theme = config[@"theme"];
+		vc.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStylePlain target:nil action:nil];
+		if ([theme isEqualToString:@"dark"]) {
+			vc.navigationController.navigationBar.tintColor = [UIColor blackColor];
+		} else {
+			vc.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+		}
+	}
+}
+
 -(void)removePopedViewControllers:(NSArray*)viewControllers {
 	for (UIViewController *popedVC in viewControllers) {
 		[_store removeContainerByViewControllerInstance:popedVC];

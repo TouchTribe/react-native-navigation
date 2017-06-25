@@ -9,20 +9,19 @@
 
 @implementation RNNRootViewController
 
--(instancetype)initWithNode:(RNNLayoutNode*)node rootViewCreator:(id<RNNRootViewCreator>)creator eventEmitter:(RNNEventEmitter*)eventEmitter {
+-(instancetype)initWithNode:(RNNLayoutNode*)node createInfo:(RNNCreateInfo *)info rootViewCreator:(id<RNNRootViewCreator>)creator eventEmitter:(RNNEventEmitter*)eventEmitter {
 	self = [super init];
 	self.containerId = node.nodeId;
 	self.containerName = node.data[@"name"];
 	self.eventEmitter = eventEmitter;
 	
-	self.view = [creator createRootView:self.containerName rootViewId:self.containerId];
+	self.view = [creator createRootView:self.containerName rootViewId:self.containerId createInfo:info];
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(onJsReload)
 												 name:RCTJavaScriptWillStartLoadingNotification
 											   object:nil];
 	
-	self.navigationItem.title = node.data[@"navigationOptions"][@"title"];
 	
 	return self;
 }

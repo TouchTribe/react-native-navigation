@@ -23,14 +23,14 @@
 	
 }
 
-- (UIView*)createRootView:(NSString*)name rootViewId:(NSString*)rootViewId {
+- (UIView*)createRootView:(NSString*)name rootViewId:(NSString*)rootViewId createInfo:(RNNCreateInfo *)info {
 	if (!rootViewId) {
 		@throw [NSException exceptionWithName:@"MissingViewId" reason:@"Missing view id" userInfo:nil];
 	}
 	
 	UIView *view = [[RNNReactRootView alloc] initWithBridge:_bridge
 										 moduleName:name
-								  initialProperties:@{@"containerId": rootViewId}];
+										  initialProperties:@{@"containerId": rootViewId, @"isRoot": @(info.isRoot)}];
 	return view;
 }
 

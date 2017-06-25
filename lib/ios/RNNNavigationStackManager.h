@@ -10,5 +10,6 @@
 -(void)pop:(NSString*)containerId;
 -(void)popTo:(NSString*)containerId;
 -(void)popToRoot:(NSString*)containerId;
+-(void)setupHeader:(NSDictionary *)config forContainer:containerId;
 
 @end

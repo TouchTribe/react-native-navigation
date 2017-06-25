@@ -3,6 +3,7 @@
 
 #import "RNNModalManager.h"
 #import "RNNNavigationStackManager.h"
+#import "RNNCreateInfo.h"
 
 @implementation RNNCommandsHandler {
 	RNNControllerFactory *_controllerFactory;
@@ -27,15 +28,39 @@
 
 	[_modalManager dismissAllModals];
 	
-	UIViewController *vc = [_controllerFactory createLayoutAndSaveToStore:layout];
+	UIWindow *window = UIApplication.sharedApplication.delegate.window;
 	
-	UIApplication.sharedApplication.delegate.window.rootViewController = vc;
-	[UIApplication.sharedApplication.delegate.window makeKeyAndVisible];
+	RNNCreateInfo *info = [RNNCreateInfo new];
+	info.isRoot = YES;
+	
+	UIViewController *toVC = [_controllerFactory createLayoutAndSaveToStore:layout withInfo:info];
+	UIViewController *fromVC = window.rootViewController;
+	
+	if (fromVC) {
+		UIView* toView = toVC.view;
+		UIView* fromView = fromVC.view;
+		toView.frame = window.bounds;
+		[window addSubview:toView];
+		
+		CATransition* transition = [CATransition animation];
+		transition.startProgress = 0;
+		transition.endProgress = 1.0;
+		transition.type = kCATransitionPush;
+		transition.subtype = kCATransitionFromRight;
+		transition.duration = 0.3;
+		
+		// Add the transition animation to both layers
+		[fromView.layer addAnimation:transition forKey:@"transition"];
+		[toView.layer addAnimation:transition forKey:@"transition"];
+	}
+	window.rootViewController = toVC;
 }
 
 -(void) push:(NSString*)containerId layout:(NSDictionary*)layout {
 	[self assertReady];
-	UIViewController *newVc = [_controllerFactory createLayoutAndSaveToStore:layout];
+	RNNCreateInfo *info = [RNNCreateInfo new];
+	info.isRoot = NO;
+	UIViewController *newVc = [_controllerFactory createLayoutAndSaveToStore:layout withInfo:info];
 	[_navigationStackManager push:newVc onTop:containerId];
 }
 
@@ -56,7 +81,9 @@
 
 -(void) showModal:(NSDictionary*)layout {
 	[self assertReady];
-	UIViewController *newVc = [_controllerFactory createLayoutAndSaveToStore:layout];
+	RNNCreateInfo *info = [RNNCreateInfo new];
+	info.isRoot = YES;
+	UIViewController *newVc = [_controllerFactory createLayoutAndSaveToStore:layout withInfo:info];
 	[_modalManager showModal:newVc];
 }
 
@@ -68,6 +95,10 @@
 -(void) dismissAllModals {
 	[self assertReady];
 	[_modalManager dismissAllModals];
+}
+
+-(void) setupHeader:(NSString*)containerId withConfig:(NSDictionary *)config {
+	[_navigationStackManager setupHeader:config forContainer:containerId];
 }
 
 #pragma mark - private
